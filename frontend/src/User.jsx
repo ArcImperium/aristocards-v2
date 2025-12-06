@@ -43,7 +43,7 @@ function User({user, setUser}) {
             <h1 className="text-white text-3xl font-extrabold mt-20">USERNAME:</h1>
             <input type="text" value={tempUser} onChange={(e) => {setTempUser(e.target.value)}} className="bg-white border-5 border-black text-xl font-bold pl-5 h-15 w-100 mt-5"/>
             <button onClick={() => {login()}} className="bg-[#141414] text-white text-xl font-extrabold border-5 border-black h-10 w-50 mt-10 hover:-translate-y-1 transition-transform duration-500 ease-in-out">SUBMIT</button>
-            {user && (<button onClick={() => {nav("/play")}} className="bg-[#141414] text-white text-2xl font-extrabold border-5 border-black h-15 w-75 mt-15 hover:-translate-y-1 transition-transform duration-500 ease-in-out">PLAY</button>)}
+            {user && (<button onClick={() => {nav("/play")}} className="bg-[#141414] text-white text-2xl font-extrabold border-5 border-black h-15 w-75 mt-15 hover:-translate-y-2.5 transition-transform duration-500 ease-in-out">PLAY</button>)}
         </div>
         </>
     )

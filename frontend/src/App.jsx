@@ -5,13 +5,14 @@ import Gamble from './Gamble.jsx'
 
 function App() {
   const [user, setUser] = useState(null)
+  const [coins, setCoins] = useState(100)
 
   return (
     <>
     <Router>
       <Routes>
         <Route path="/" element={<User user={user} setUser={setUser}/>}/>
-        <Route path="/play" element={<Gamble user={user}/>}/>
+        <Route path="/play" element={<Gamble user={user} coins={coins} setCoins={setCoins}/>}/>
       </Routes>
     </Router>
     </>
