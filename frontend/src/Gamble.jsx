@@ -1,5 +1,6 @@
 import {useState, useEffect} from "react"
 import {useNavigate} from "react-router-dom"
+import Deck from './assets/deck.json'
 
 function Gamble({user, scores}) {
     useEffect(() => {
@@ -15,11 +16,13 @@ function Gamble({user, scores}) {
     const [stage, setStage] = useState(false)
     const [bet, setBet] = useState(0)
     const [coins, setCoins] = useState(0)
+    const [deck, setDeck] = useState(Deck)
 
     const nav = useNavigate()
 
     function yaBet() {
-        
+        setStage(true)
+        setDeck(shuf => Object.keys(shuf).sort(() => Math.random() - 0.5))
     }
 
     return(
@@ -36,10 +39,23 @@ function Gamble({user, scores}) {
                 <input type="range" value={bet} min="0" max={coins} onChange={(e) => {setBet(e.target.value)}} className="w-[90%] md:w-[75%] ml-[2.5%]"/>
                 <input type="number" value={bet} min="0" max={coins} onChange={(e) => {if (Number(e.target.value) <= coins && Number(e.target.value) > 0) {setBet(Number(e.target.value))} else if (Number(e.target.value) > coins) {setBet(coins)} else {setBet(0)}}} className="w-[75%] mt-5 md:w-[15%] md:mt-0 ml-[5%] p-1 bg-[#141414] text-white text-xl text-center font-bold border-5 border-black overflow-visible"/>
             </div>
-            <button onClick={() => {yaBet()}} className="w-[40%] ml-[30%] h-20 mt-10 bg-[#242424] text-white text-3xl font-bold border-5 border-black hover:-translate-y-2.5 transition-transform duration-500 ease-in-out">BET</button>
+            {(bet > 0) && (<button onClick={() => {yaBet()}} className="w-[40%] ml-[30%] h-20 mt-10 bg-[#242424] text-white text-3xl font-bold border-5 border-black hover:-translate-y-2.5 transition-transform duration-500 ease-in-out">BET</button>)}
         </>)}
         {stage && (<>
-            <div className="w-[80%] bg-[#242424]"></div>
+            <div className="flex flex-row w-full h-25 justify-center">
+                <button className="w-40 h-15 mt-10 bg-[#242424] text-white text-xl font-bold border-5 border-black hover:-translate-y-1 transition-transform duration-500 ease-in-out">HIT</button>
+                <button className="w-40 h-15 mt-10 ml-40 bg-[#242424] text-white text-xl font-bold border-5 border-black hover:-translate-y-1 transition-transform duration-500 ease-in-out">STAND</button>
+            </div>
+            <div className="flex flex-col md:flex-row w-[80%] ml-[10%] mt-5 mb-10 bg-[#242424] border-5 border-black">
+                <div className="w-[80%] md:w-[42.5%] ml-[10%] md:ml-[5%] mt-10 mb-10">
+                    <h1 className="text-white text-3xl text-center font-bold mb-5 underline">Dealer</h1>
+                    <div className="w-full h-50 bg-[#141414] border-5 border-black"></div>
+                </div>
+                <div className="w-[80%] md:w-[42.5%] ml-[10%] md:ml-[5%] md:mt-10 mb-10">
+                    <h1 className="text-white text-3xl text-center font-bold mb-5 underline">Player</h1>
+                    <div className="w-full h-50 bg-[#141414] border-5 border-black"></div>
+                </div>
+            </div>
         </>)}
         </>
     )
