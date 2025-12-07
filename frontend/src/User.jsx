@@ -1,8 +1,7 @@
 import {useState} from "react"
 import {useNavigate} from "react-router-dom"
 
-function User({user, setUser, scores}) {
-    const [tempUser, setTempUser] = useState("")
+function User({user, setUser, tempUser, setTempUser, scores}) {
     const [showLead, setShowLead] = useState(false)
 
     const nav = useNavigate()

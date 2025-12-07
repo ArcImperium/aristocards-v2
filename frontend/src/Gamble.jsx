@@ -45,11 +45,19 @@ function Gamble({user, scores}) {
     function getCompHand() {
         const compHand = []
 
-        for (let i = 0; i < comp.length; i++) {
-            const goLeft = 2.5 + 2.5 * i
+        if (showCards) {
+            for (let i = 0; i < comp.length; i++) {
+                const goLeft = 2.5 + 2.5 * i
 
-            compHand.push(<div style={{left: `${goLeft}rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-white hover:h-40 transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black">
-                {comp[i]}
+                compHand.push(<div style={{left: `${goLeft}rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-white hover:h-40 transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black">
+                    {comp[i]}
+                </div>)
+            }
+        }
+        else if (!showCards) {
+            compHand.push(<div style={{left: `2.5rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-red-800 hover:h-40 transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black"></div>)
+            compHand.push(<div style={{left: `5rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-white hover:h-40 transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black">
+                {comp[1]}
             </div>)
         }
 
@@ -59,12 +67,29 @@ function Gamble({user, scores}) {
     function getPlayHand() {
         const playHand = []
 
-        for (let i = 0; i < play.length; i++) {
-            const goLeft = 2.5 + 2.5 * i
+        if (showCards) {
+            for (let i = 0; i < play.length; i++) {
+                const goLeft = 2.5 + 2.5 * i
 
-            playHand.push(<div style={{left: `${goLeft}rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-white hover:h-40 transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black">
-                {play[i]}
-            </div>)
+                playHand.push(<div style={{left: `${goLeft}rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-white hover:h-40 transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black">
+                    {play[i]}
+                </div>)
+            }
+        }
+        else if (!showCards) {
+            for (let i = 0; i < play.length; i++) {
+                const goLeft = 2.5 + 2.5 * i
+
+                if (i === 1) {
+                    playHand.push(<div style={{left: `${goLeft}rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-white hover:h-40 transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black">
+                        {play[i]}
+                    </div>)}
+                else {
+                    playHand.push(<div style={{left: `${goLeft}rem`}} className="absolute bottom-0 w-40 h-30 p-2.5 bg-red-800 hover:bg-white hover:h-40 text-red-800 hover:text-black transition-all duration-500 ease-in-out border-l-4 border-r-4 border-t-4 border-black">
+                        {play[i]}
+                    </div>)
+                }
+            }
         }
 
         return playHand
@@ -137,7 +162,7 @@ function Gamble({user, scores}) {
         if (playTotal > 21) {
             setShowBtn(false)
             setShowCards(true)
-            end()
+            end("bust", playTotal)
         }
     }
 
@@ -180,12 +205,21 @@ function Gamble({user, scores}) {
         setComp(dealerHand)
         setCards(otherCards)
 
-        end()
+        end("stand", compTotal)
     }
 
-    function end() {
-        const playTotal = getPlayTotal()
-        const compTotal = getCompTotal()
+    function end(how, total) {
+        let playTotal = 0
+        let compTotal = 0
+        if (how === "bust") {
+            playTotal = total
+            compTotal = getCompTotal()
+        }
+        else if (how === "stand") {
+            playTotal = getPlayTotal()
+            compTotal = total
+        }
+
         if (playTotal > 21) {
             setWin("Dealer")
         }
@@ -198,6 +232,13 @@ function Gamble({user, scores}) {
         else if (playTotal > compTotal) {
             setWin("Player")
         }
+    }
+
+    function next() {
+        setStage(false)
+        setWin("In Progress")
+        setShowBtn(true)
+        setShowCards(false)
     }
 
     return(
@@ -213,15 +254,21 @@ function Gamble({user, scores}) {
             <div className="flex flex-col md:flex-row w-[80%] ml-[10%] mt-10 p-5 bg-[#242424] border-5 border-black items-center">
                 <input type="range" value={bet} min="0" max={coins} onChange={(e) => {setBet(e.target.value)}} className="w-[90%] md:w-[75%] ml-[2.5%]"/>
                 <input type="number" value={bet} min="0" max={coins} onChange={(e) => {if (Number(e.target.value) <= coins && Number(e.target.value) > 0) {setBet(Number(e.target.value))} else if (Number(e.target.value) > coins) {setBet(coins)} else {setBet(0)}}} className="w-[75%] mt-5 md:w-[15%] md:mt-0 ml-[5%] p-1 bg-[#141414] text-white text-xl text-center font-bold border-5 border-black overflow-visible"/>
+            </div>.
+            <div className="flex flex-row">
+                <button onClick={() => {nav('/')}} className="w-[35%] ml-[10%] h-20 mt-10 bg-[#242424] text-white text-3xl font-bold border-5 border-black hover:-translate-y-2.5 transition-transform duration-500 ease-in-out">HOME</button>
+                {(bet > 0) && (<button onClick={() => {yaBet()}} className="w-[35%] ml-[10%] h-20 mt-10 bg-[#242424] text-white text-3xl font-bold border-5 border-black hover:-translate-y-2.5 transition-transform duration-500 ease-in-out">BET/DEAL</button>)}
             </div>
-            {(bet > 0) && (<button onClick={() => {yaBet()}} className="w-[40%] ml-[30%] h-20 mt-10 bg-[#242424] text-white text-3xl font-bold border-5 border-black hover:-translate-y-2.5 transition-transform duration-500 ease-in-out">BET</button>)}
         </>)}
         {stage && (<>
-            {showBtn && (<div className="flex flex-row w-full h-25 justify-center">
-                <button onClick={() => {hit()}} className="w-40 h-15 mt-10 bg-[#242424] text-white text-xl font-bold border-5 border-black hover:-translate-y-1 transition-transform duration-500 ease-in-out">HIT</button>
-                <button onClick={() => {stand()}} className="w-40 h-15 mt-10 ml-40 bg-[#242424] text-white text-xl font-bold border-5 border-black hover:-translate-y-1 transition-transform duration-500 ease-in-out">STAND</button>
-            </div>)}
-            <div className="flex flex-col md:flex-row w-[80%] ml-[10%] mt-5 mb-10 bg-[#242424] border-5 border-black">
+            <div className="flex flex-row w-full h-25 justify-center">
+                {showBtn && (<>
+                    <button onClick={() => {hit()}} className="w-40 h-15 mt-10 bg-[#242424] text-white text-xl font-bold border-5 border-black hover:-translate-y-1 transition-transform duration-500 ease-in-out">HIT</button>
+                    <button onClick={() => {stand()}} className="w-40 h-15 mt-10 ml-40 bg-[#242424] text-white text-xl font-bold border-5 border-black hover:-translate-y-1 transition-transform duration-500 ease-in-out">STAND</button>
+                </>)}
+                {!showBtn && (<button onClick={() => {next()}} className="w-80 h-15 mt-10 bg-[#242424] text-white text-xl font-bold border-5 border-black hover:-translate-y-1 transition-transform duration-500 ease-in-out">NEXT</button>)}
+            </div>
+            <div className="flex flex-col md:flex-row w-[80%] ml-[10%] mt-5 mb-2.5 bg-[#242424] border-5 border-black">
                 <div className="w-[80%] md:w-[42.5%] ml-[10%] md:ml-[5%] mt-10 mb-10">
                     <h1 className="text-white text-3xl text-center font-bold mb-5 underline">Dealer - {getCompTotal()}</h1>
                     <div className="relative w-full h-50 bg-[#141414] border-5 border-black">
@@ -235,9 +282,9 @@ function Gamble({user, scores}) {
                     </div>
                 </div>
             </div>
-            <div className="">
-                <h1 className="">Bet: {bet}</h1>
-                <h1 className="">Winner: {win}</h1>
+            <div className="flex flex-col w-[90%] ml-[5%] mb-5 justify-center">
+                <h1 className="w-full text-2xl font-extrabold text-white text-center">Bet: {bet}</h1>
+                <h1 className="w-full text-2xl font-extrabold text-white text-center">Winner: {win}</h1>
             </div>
         </>)}
         </>

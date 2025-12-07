@@ -5,6 +5,7 @@ import Gamble from './Gamble.jsx'
 
 function App() {
   const [user, setUser] = useState(null)
+  const [tempUser, setTempUser] = useState("")
   const [scores, setScores] = useState([])
 
   useEffect(() => {
@@ -17,7 +18,7 @@ function App() {
     <>
     <Router>
       <Routes>
-        <Route path="/" element={<User user={user} setUser={setUser} scores={scores}/>}/>
+        <Route path="/" element={<User user={user} setUser={setUser} tempUser={tempUser} setTempUser={setTempUser} scores={scores}/>}/>
         <Route path="/play" element={<Gamble user={user} scores={scores}/>}/>
       </Routes>
     </Router>
