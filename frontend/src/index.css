@@ -1,7 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Rouge+Script&display=swap');
+
 :root {
     background-color: #343434;
 }
 
 button:hover {
     cursor: pointer;
+}
+
+.title {
+    font-family: 'Rouge Script', cursive;
+}
+
+.coin {
+    animation: spin 5s linear infinite alternate;
+    transform-origin: 50% 50%;
+}
+
+@keyframes spin {
+  0% {left: 0; transform: rotate(0deg);}
+  100% {left: 90%; transform: rotate(1080deg);}
 }

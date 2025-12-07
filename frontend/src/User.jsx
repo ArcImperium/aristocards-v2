@@ -41,7 +41,7 @@ function User({user, setUser, tempUser, setTempUser, scores}) {
     return(
         <>
         <div className="hidden md:block fixed h-[90%] w-[30%] top-[5%] left-[5%] bg-[#242424] border-5 border-black">
-            <h1 className="text-white text-2xl font-extrabold text-center mt-5">Leaderboard</h1>
+            <h1 className="text-white underline text-2xl font-extrabold text-center mt-5">Leaderboard</h1>
             {getLead()}
         </div>
         {showLead && (
