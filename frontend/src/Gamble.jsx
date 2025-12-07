@@ -23,18 +23,18 @@ function Gamble({user, scores}) {
 
     const [showBtn, setShowBtn] = useState(true)
     const [showCards, setShowCards] = useState(false)
-    const [win, setWin] = useState("IN PROGRESS")
+    const [win, setWin] = useState("In Progress")
 
     const nav = useNavigate()
 
     function yaBet() {
-        setCards(prev => [...prev].sort(() => Math.random() - 0.5))
+        const shuffled = [...cards].sort(() => Math.random() - 0.5)
 
-        const ccard1 = cards[0]
-        const pcard1 = cards[1]
-        const ccard2 = cards[2]
-        const pcard2 = cards[3]
-        setCards(prev => prev.slice(4))
+        const ccard1 = shuffled[0]
+        const pcard1 = shuffled[1]
+        const ccard2 = shuffled[2]
+        const pcard2 = shuffled[3]
+        setCards(shuffled.slice(4))
 
         setComp([ccard1, ccard2])
         setPlay([pcard1, pcard2])
@@ -72,10 +72,22 @@ function Gamble({user, scores}) {
 
     function getCompTotal() {
         let compTotal = 0
+        let ace = 0
 
-        for (let i = 0; i < comp.length; i++) {
-            const more = Deck[comp[i]]
-            compTotal += more
+        if (showCards) {
+            for (let i = 0; i < comp.length; i++) {
+                const more = Deck[comp[i]]
+                if (more === 11) {ace++}
+                compTotal += more
+            }
+        }   
+        else if (!showCards) {
+            compTotal = Deck[comp[1]]
+        }
+
+        while (compTotal > 21 && ace > 0) {
+            compTotal -= 10
+            ace--
         }
 
         return compTotal
@@ -83,30 +95,90 @@ function Gamble({user, scores}) {
 
     function getPlayTotal() {
         let playTotal = 0
+        let ace = 0
 
         for (let i = 0; i < play.length; i++) {
             const more = Deck[play[i]]
+            if (more === 11) {ace++}
             playTotal += more
+        }
+
+        while (playTotal > 21 && ace > 0) {
+            playTotal -= 10
+            ace--
         }
 
         return playTotal
     }
 
     function hit() {
-        const nextCard = cards[0]
-        setCards(prev => prev.slice(1))
+        let otherCards = [...cards]
+        const nextCard = otherCards[0]
+        const newHand = [...play, nextCard]
+        otherCards = otherCards.slice(1)
 
-        setPlay(prev => [...prev, nextCard])
+        setCards(otherCards)
+        setPlay(newHand)
 
-        const playTotal = getPlayTotal()
+        let playTotal = 0
+        let ace = 0
+
+        for (let i = 0; i < newHand.length; i++) {
+            const more = Deck[newHand[i]]
+            if (more === 11) {ace++}
+            playTotal += more
+        }
+
+        while (playTotal > 21 && ace > 0) {
+            playTotal -= 10
+            ace--
+        }
 
         if (playTotal > 21) {
+            setShowBtn(false)
+            setShowCards(true)
             end()
         }
     }
 
     function stand() {
         setShowBtn(false)
+        setShowCards(true)
+
+        let dealerHand = [...comp]
+        let otherCards = [...cards]
+        let compTotal = 0
+        let ace = 0
+        
+        for (let i = 0; i < dealerHand.length; i++) {
+                const more = Deck[dealerHand[i]]
+                if (more === 11) {ace++}
+                compTotal += more
+            }
+        
+        while (compTotal > 21 && ace > 0) {
+            compTotal -= 10
+            ace--
+        }
+
+        while (compTotal < 17) {
+            const nextCard = otherCards[0]
+            otherCards = otherCards.slice(1)
+            
+            dealerHand.push(nextCard)
+
+            let nextVal = Deck[nextCard]
+            if (nextVal === 11) {ace++}
+            compTotal += nextVal
+
+            while (compTotal > 21 && ace > 0) {
+                compTotal -= 10
+                ace--
+            }
+        }
+
+        setComp(dealerHand)
+        setCards(otherCards)
 
         end()
     }
@@ -162,6 +234,10 @@ function Gamble({user, scores}) {
                         {getPlayHand()}
                     </div>
                 </div>
+            </div>
+            <div className="">
+                <h1 className="">Bet: {bet}</h1>
+                <h1 className="">Winner: {win}</h1>
             </div>
         </>)}
         </>
