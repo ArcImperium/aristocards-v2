@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react"
 import {useNavigate} from "react-router-dom"
 import {doc, getDoc, updateDoc} from "firebase/firestore"
-import {db} from "./firebase/firebase"
+import {db} from "./firebase.jsx"
 import Deck from './assets/deck.json'
 
 function Gamble({user}) {

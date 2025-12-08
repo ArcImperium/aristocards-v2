@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react"
 import {useNavigate} from "react-router-dom"
-import {db} from './firebase/firebase';
-import {collection, getDocs, addDoc, doc, getDoc, setDoc} from "firebase/firestore";
+import {db} from './firebase.jsx';
+import {collection, getDocs, doc, getDoc, setDoc} from "firebase/firestore";
 
 function User({user, setUser, tempUser, setTempUser}) {
     const [showLead, setShowLead] = useState(false)
@@ -15,7 +15,7 @@ function User({user, setUser, tempUser, setTempUser}) {
             const scoreSnapshot = await getDocs(scoresCollection)
             const scoresList = scoreSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}))
 
-            scoresList.sort((a, b) => b.score - a.score)
+            scoresList.sort((a, b) => Number(b.score) - Number(a.score))
             setScores(scoresList)
         }
         getScores()
