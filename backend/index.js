@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({extended:false}))
 
 const corsOptions = {
     origin: [
-        'http://localhost:5173'
+        'https://aristocards.elipeters.org'
     ],
     credentials: true,
 }

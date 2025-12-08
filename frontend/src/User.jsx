@@ -1,21 +1,36 @@
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import {useNavigate} from "react-router-dom"
+import {db} from './firebase/firebase';
+import {collection, getDocs, addDoc, doc, getDoc, setDoc} from "firebase/firestore";
 
-function User({user, setUser, tempUser, setTempUser, scores}) {
+function User({user, setUser, tempUser, setTempUser}) {
     const [showLead, setShowLead] = useState(false)
+    const [scores, setScores] = useState([])
 
     const nav = useNavigate()
 
-    async function login() {
-        const userExists = scores.some(score => score.user === tempUser);
+    useEffect(() => {
+        async function getScores() {
+            const scoresCollection = collection(db, "scores")
+            const scoreSnapshot = await getDocs(scoresCollection)
+            const scoresList = scoreSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}))
 
-        if (!userExists) {
-            const res = await fetch("http://localhost:4000/scores", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    user: tempUser
-                })
+            scoresList.sort((a, b) => b.score - a.score)
+            setScores(scoresList)
+        }
+        getScores()
+    }, [])
+
+    async function login() {
+        if (!tempUser) {return}
+
+        const userRef = doc(db, "scores", tempUser)
+        const userExists = await getDoc(userRef)
+
+        if (!userExists.exists()) {
+            await setDoc(userRef, {
+                user: tempUser,
+                score: 100
             })
         }
 

@@ -1,17 +1,32 @@
 import {useState, useEffect} from "react"
 import {useNavigate} from "react-router-dom"
+import {doc, getDoc, updateDoc} from "firebase/firestore"
+import {db} from "./firebase/firebase"
 import Deck from './assets/deck.json'
 
-function Gamble({user, scores}) {
+function Gamble({user}) {
     useEffect(() => {
-        if (!user || !scores) return;
+        if (!user) {return}
 
-        const currentUser = scores.find(s => s.user === user);
+        async function getScores() {
+            try {
+                const userRef = doc(db, "scores", user)
+                const userExists = await getDoc(userRef)
 
-        if (currentUser) {
-            setCoins(currentUser.score);
+                if (userExists.exists()) {
+                    setCoins(userExists.data().score)
+                }
+                else {
+                    setCoins(0)
+                }
+            }
+            catch (err) {
+                console.error("Failed to get score:", err)
+            }
         }
-    }, [user, scores])
+
+        getScores()
+    }, [user])
 
     const [stage, setStage] = useState(false)
     const [bet, setBet] = useState(0)
@@ -27,7 +42,21 @@ function Gamble({user, scores}) {
 
     const nav = useNavigate()
 
+    async function updateScore(newScore) {
+        try {
+            const userRef = doc(db, "scores", user)
+            await updateDoc(userRef, {score: newScore})
+        }
+        catch (err) {
+            console.error("Failed to update score:", err)
+        }
+    }
+
     function yaBet() {
+        const newScore = coins - bet
+        setCoins(newScore)
+        updateScore(newScore)
+
         const shuffled = [...cards].sort(() => Math.random() - 0.5)
 
         const ccard1 = shuffled[0]
@@ -220,23 +249,34 @@ function Gamble({user, scores}) {
             compTotal = total
         }
 
+        let winner = ""
+
         if (playTotal > 21) {
-            setWin("Dealer")
+            winner = "Dealer"
         }
         else if (compTotal > 21) {
-            setWin("Player")
+            winner = "Player"
         }
         else if (compTotal >= playTotal) {
-            setWin("Dealer")
+            winner = "Dealer"
         }
         else if (playTotal > compTotal) {
-            setWin("Player")
+            winner = "Player"
+        }
+
+        setWin(winner)
+
+        if (winner === "Player") {
+            const newScore = coins + bet * 2
+            setCoins(newScore)
+            updateScore(newScore)
         }
     }
 
     function next() {
         setStage(false)
         setWin("In Progress")
+        setBet(0)
         setShowBtn(true)
         setShowCards(false)
     }
@@ -252,7 +292,7 @@ function Gamble({user, scores}) {
         <h1 className="w-[80%] md:w-[50%] ml-[10%] md:ml-[25%] text-center p-2.5 text-white text-5xl font-extrabold bg-[#242424] mt-10 border-5 border-black">{user} ({coins})</h1>
         {!stage && (<>
             <div className="flex flex-col md:flex-row w-[80%] ml-[10%] mt-10 p-5 bg-[#242424] border-5 border-black items-center">
-                <input type="range" value={bet} min="0" max={coins} onChange={(e) => {setBet(e.target.value)}} className="w-[90%] md:w-[75%] ml-[2.5%]"/>
+                <input type="range" value={bet} min="0" max={coins} onChange={(e) => {setBet(Number(e.target.value))}} className="w-[90%] md:w-[75%] ml-[2.5%]"/>
                 <input type="number" value={bet} min="0" max={coins} onChange={(e) => {if (Number(e.target.value) <= coins && Number(e.target.value) > 0) {setBet(Number(e.target.value))} else if (Number(e.target.value) > coins) {setBet(coins)} else {setBet(0)}}} className="w-[75%] mt-5 md:w-[15%] md:mt-0 ml-[5%] p-1 bg-[#141414] text-white text-xl text-center font-bold border-5 border-black overflow-visible"/>
             </div>.
             <div className="flex flex-row">
