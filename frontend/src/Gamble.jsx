@@ -279,6 +279,7 @@ function Gamble({user}) {
         setBet(0)
         setShowBtn(true)
         setShowCards(false)
+        setCards(Object.keys(Deck))
     }
 
     return(
